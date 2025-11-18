@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIG LEADER - Centro Internacional de Liderazgo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>BIG LEADER</h2>
+                <span>Centro Internacional de Liderazgo</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#inicio" class="nav-link active">Inicio</a>
+                <a href="#modulos" class="nav-link">Módulos</a>
+                <a href="#sistema-educativo" class="nav-link">Sistema de Formación</a>
+                <a href="#nosotros" class="nav-link">Nosotros</a>
+                <a href="#servicios" class="nav-link">Servicios</a>
+                <a href="#testimonios" class="nav-link">Testimonios</a>
+                <a href="#contacto" class="nav-link">Contacto</a>
+                <button class="login-btn" id="openLogin">Iniciar Sesión</button>
+            </div>
+            <div class="nav-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container" id="authContainer">
+            <button class="close-modal" id="closeModal">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="forms-container">
+                <div class="signin-signup">
+                    <form class="sign-in-form">
+                        <h2 class="title">Iniciar Sesión</h2>
+                        <div class="input-field">
+                            <i class="fas fa-user"></i>
+                            <input type="text" placeholder="Usuario" required>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Contraseña" required>
+                        </div>
+                        <input type="submit" value="Entrar" class="btn solid">
+                        <p class="social-text">Inicia sesión con Google</p>
+                        <div class="social-media">
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-google"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </div>
+                    </form>
+
+                    <form class="sign-up-form">
+                        <h2 class="title">Registrarse</h2>
+                        <div class="input-field">
+                            <i class="fas fa-user"></i>
+                            <input type="text" placeholder="Nombre completo" required>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" placeholder="Correo electrónico" required>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Contraseña" required>
+                        </div>
+                        <div class="input-field">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Confirmar contraseña" required>
+                        </div>
+                        <input type="submit" value="Registrarse" class="btn solid">
+                        <p class="social-text">O regístrate con</p>
+                        <div class="social-media">
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-google"></i>
+                            </a>
+                            <a href="#" class="social-icon">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panels-container">
+                <div class="panel left-panel">
+                    <div class="content">
+                        <h3>¿Nuevo aquí?</h3>
+                        <p>¡Únete a BIG LEADER y comienza tu transformación hacia el liderazgo!</p>
+                        <button class="btn transparent" id="sign-up-btn">Registrarse</button>
+                    </div>
+                </div>
+                <div class="panel right-panel">
+                    <div class="content">
+                        <h3>¿Ya eres miembro?</h3>
+                        <p>Nos alegra verte de vuelta. Continúa tu camino de liderazgo con nosotros.</p>
+                        <button class="btn transparent" id="sign-in-btn">Iniciar Sesión</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberArea" style="display: none;">
+        <section class="dashboard-section">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Mi Dashboard</h1>
+                    <p>Bienvenido a tu centro de transformación</p>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-icon">📚</div>
+                        <h3>Mis Módulos</h3>
+                        <div id="purchasedModulesList" class="modules-list">
+                            <p class="no-modules">Aún no has comprado módulos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-icon">🚀</div>
+                        <h3>Mi Progreso</h3>
+                        <div class="progress-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Módulos Completados</span>
+                                <span class="stat-value">0/3</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Tiempo de Estudio</span>
+                                <span class="stat-value">0h</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-icon">🎯</div>
+                        <h3>Próximos Pasos</h3>
+                        <ul class="next-steps">
+                            <li>Completa tu primer módulo</li>
+                            <li>Únete a la comunidad</li>
+                            <li>Programa tu mentoría</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <main class="main-content" id="mainContent">
+        <section class="hero-section" id="inicio">
+            <div class="waves-container">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+            <div class="leadership-elements">
+                <div class="element">👑</div>
+                <div class="element">💎</div>
+                <div class="element">🚀</div>
+                <div class="element">🌟</div>
+                <div class="element">🎯</div>
+                <div class="element">⚡</div>
+                <div class="element">🧠</div>
+                <div class="element">💡</div>
+                <div class="element">📚</div>
+                <div class="element">🎓</div>
+                <div class="element">🌱</div>
+                <div class="element">🦋</div>
+                <div class="element">✨</div>
+                <div class="element">🏆</div>
+                <div class="element">🌍</div>
+                <div class="element">🌊</div>
+                <div class="element">☀️</div>
+                <div class="element">🌈</div>
+            </div>
+            <div class="hero-content">
+                <h1 class="hero-title">HAZ DE TU VIDA LA PELÍCULA QUE QUIERES VER</h1>
+                <p class="hero-subtitle">Transforma el techo de cristal en una ventana de posibilidades</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary">Explorar Módulos</button>
+                    <button class="btn-secondary">Ver Video</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="video-section">
+            <div class="video-container">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/-UNVv8Bpuf4" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <section class="modules-section" id="modulos">
+            <div class="container">
+                <h2 class="section-title">Nuestros Módulos de Liderazgo</h2>
+                <p class="section-subtitle">Invierte en tu crecimiento personal y profesional</p>
+                
+                <div class="modules-grid">
+                    <div class="module-card">
+                        <div class="module-image">
+                            <img src="images/1.png" alt="Módulo 1 - Playing by the Rules">
+                            <div class="module-overlay">
+                                <span class="price">$70,000 COP</span>
+                            </div>
+                        </div>
+                        <div class="module-content">
+                            <h3>Playing by the Rules</h3>
+                            <p>Domina los fundamentos del liderazgo efectivo y construye bases sólidas para tu crecimiento personal y profesional.</p>
+                            <div class="module-features">
+                                <span><i class="fas fa-download"></i> Descarga inmediata</span>
+                                <span><i class="fas fa-file-pdf"></i> Formato PDF</span>
+                            </div>
+                            <button class="buy-btn" data-module="1">
+                                <i class="fas fa-shopping-cart"></i>
+                                Comprar Ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="module-image">
+                            <img src="images/2.png" alt="Módulo 2 - Boulevard">
+                            <div class="module-overlay">
+                                <span class="price">$70,000 COP</span>
+                            </div>
+                        </div>
+                        <div class="module-content">
+                            <h3>Boulevard</h3>
+                            <p>Expande tu influencia y aprende a navegar por los diferentes caminos del liderazgo moderno y la transformación personal.</p>
+                            <div class="module-features">
+                                <span><i class="fas fa-download"></i> Descarga inmediata</span>
+                                <span><i class="fas fa-file-pdf"></i> Formato PDF</span>
+                            </div>
+                            <button class="buy-btn" data-module="2">
+                                <i class="fas fa-shopping-cart"></i>
+                                Comprar Ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="module-card">
+                        <div class="module-image">
+                            <img src="images/3.png" alt="Módulo 3 - Fantasía Épica">
+                            <div class="module-overlay">
+                                <span class="price">$70,000 COP</span>
+                            </div>
+                        </div>
+                        <div class="module-content">
+                            <h3>Fantasía Épica</h3>
+                            <p>Desata tu creatividad y construye visiones extraordinarias que inspiren a otros a seguirte en tu camino de liderazgo.</p>
+                            <div class="module-features">
+                                <span><i class="fas fa-download"></i> Descarga inmediata</span>
+                                <span><i class="fas fa-file-pdf"></i> Formato PDF</span>
+                            </div>
+                            <button class="buy-btn" data-module="3">
+                                <i class="fas fa-shopping-cart"></i>
+                                Comprar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="blue-system-section" id="sistema-educativo">
+            <div class="blue-waves-container">
+                <div class="blue-wave"></div>
+                <div class="blue-wave"></div>
+                <div class="blue-wave"></div>
+            </div>
+            
+            <div class="education-elements">
+                <div class="education-element">📚</div>
+                <div class="education-element">🎓</div>
+                <div class="education-element">💡</div>
+                <div class="education-element">🔬</div>
+                <div class="education-element">🌱</div>
+                <div class="education-element">⚡</div>
+                <div class="education-element">🧠</div>
+                <div class="education-element">❤️</div>
+                <div class="education-element">🌍</div>
+                <div class="education-element">🚀</div>
+            </div>
+            
+            <div class="container">
+                <h2 class="section-title">Sistema de Formación Azul</h2>
+                <p class="section-subtitle">Nuestra propuesta multidimensional disruptiva fundamentada en una metaepistemología</p>
+                
+                <div class="dimensions-grid">
+                    <div class="dimension-card">
+                        <div class="dimension-icon">🧠</div>
+                        <h3>Dimensión Cognitiva</h3>
+                        <p>Estructuras de pensamiento y procesos reflexivos para la generación de ideas e iniciativas</p>
+                    </div>
+                    
+                    <div class="dimension-card">
+                        <div class="dimension-icon">❤️</div>
+                        <h3>Dimensión Emocional</h3>
+                        <p>Expresión y conexión emocional entre los seres humanos a través del arte y la empatía</p>
+                    </div>
+                    
+                    <div class="dimension-card">
+                        <div class="dimension-icon">⚡</div>
+                        <h3>Dimensión Física</h3>
+                        <p>Desarrollo del bienestar corporal y salud integral para un liderazgo sostenible</p>
+                    </div>
+                    
+                    <div class="dimension-card">
+                        <div class="dimension-icon">🌐</div>
+                        <h3>Dimensión Digital</h3>
+                        <p>Transformación de nuestra sociedad mediante el uso estratégico de tecnologías digitales</p>
+                    </div>
+                    
+                    <div class="dimension-card">
+                        <div class="dimension-icon">🔬</div>
+                        <h3>Dimensión Científica</h3>
+                        <p>Comprensión del mundo para construir sistemas que generen calidad de vida</p>
+                    </div>
+                </div>
+
+                <div class="intelligences-section">
+                    <h3 class="intelligences-title">Nuestras 8 Líneas de Formación</h3>
+                    <div class="intelligences-grid">
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Intrapersonal</h4>
+                            <p>Autoconocimiento y gestión emocional para el liderazgo interior</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Interpersonal</h4>
+                            <p>Habilidades sociales y construcción de relaciones efectivas</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Comunicacional</h4>
+                            <p>Arte de la comunicación asertiva y la oratoria persuasiva</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Nutricional</h4>
+                            <p>Alimentación consciente para el alto rendimiento mental y físico</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Financiera</h4>
+                            <p>Gestión económica y creación de abundancia sostenible</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia de Marketing</h4>
+                            <p>Posicionamiento personal y estrategias de influencia digital</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Inteligencia Tecnológica</h4>
+                            <p>Dominio de herramientas digitales para la transformación</p>
+                        </div>
+                        
+                        <div class="intelligence-card">
+                            <h4>Formulación de Proyectos</h4>
+                            <p>Diseño y gestión de iniciativas con impacto social</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="about-section" id="nosotros">
+            <div class="about-waves-container">
+                <div class="about-wave"></div>
+                <div class="about-wave"></div>
+                <div class="about-wave"></div>
+            </div>
+            
+            <div class="about-elements">
+                <div class="about-element">🌟</div>
+                <div class="about-element">💎</div>
+                <div class="about-element">🚀</div>
+                <div class="about-element">🎯</div>
+                <div class="about-element">⚡</div>
+                <div class="about-element">🔮</div>
+                <div class="about-element">🌊</div>
+                <div class="about-element">☀️</div>
+            </div>
+
+            <div class="container">
+                <h2 class="section-title">El Aroma de lo que Somos</h2>
+                <p class="section-subtitle">Nuestro Golden Circle - La esencia de BIG LEADER</p>
+
+                <div class="golden-circle">
+                    <div class="circle-container">
+                        <div class="circle-item why">
+                            <div class="circle-icon">❓</div>
+                            <h3>¿POR QUÉ LO HACEMOS?</h3>
+                            <p>El Caribe es un barco a la deriva, una sociedad fragmentada. Anhelando encontrar su Norte, su puerto de Bienestar.</p>
+                        </div>
+                        
+                        <div class="circle-item how">
+                            <div class="circle-icon">🛠️</div>
+                            <h3>¿CÓMO LO HACEMOS?</h3>
+                            <p>A través del diseño de una plataforma educacional disruptiva que posibilita una transformación integral en nuestras comunidades.</p>
+                        </div>
+                        
+                        <div class="circle-item what">
+                            <div class="circle-icon">🎯</div>
+                            <h3>¿QUÉ HACEMOS?</h3>
+                            <p>Cualificamos los talentos de los ciudadanos a través de nuestras 9 líneas de formación.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ceo-message">
+                    <div class="ceo-content">
+                        <div class="ceo-text">
+                            <h3>MENSAJE DEL C.E.O</h3>
+                            <h4>El Caribe es nuestra pasión.</h4>
+                            <p>En BIG LEADER, nos dedicamos a transformar vidas a través de un sistema educacional disruptivo.</p>
+                            <p>Nuestra misión es romper barreras, potenciar talentos y unificar la región.</p>
+                            <p>A través de nuestra plataforma educacional innovadora, empoderamos a las personas para descubrir su esencia y alcanzar su máximo potencial.</p>
+                            <p>Aborda nuestro Crucero Azul, una emocionante travesía en un océano inmenso hacia un Caribe unido y próspero.</p>
+                            <p>Juntos, haremos historia y construiremos un presente lleno de oportunidades para todos.</p>
+                            <p class="ceo-call">¡Únete a BIG LEADER y seamos la generación que soñamos ser!</p>
+                        </div>
+                        <div class="ceo-visual">
+                            <div class="visual-element">⚓</div>
+                            <div class="visual-element">🌅</div>
+                            <div class="visual-element">🗺️</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="services-section" id="servicios">
+            <div class="services-waves-container">
+                <div class="services-wave"></div>
+                <div class="services-wave"></div>
+                <div class="services-wave"></div>
+            </div>
+            
+            <div class="services-elements">
+                <div class="services-element">💼</div>
+                <div class="services-element">🚀</div>
+                <div class="services-element">📊</div>
+                <div class="services-element">🌟</div>
+                <div class="services-element">⚡</div>
+                <div class="services-element">🎯</div>
+                <div class="services-element">🔧</div>
+                <div class="services-element">📈</div>
+            </div>
+
+            <div class="container">
+                <h2 class="section-title">Servicios para Empresas</h2>
+                <p class="section-subtitle">Potenciamos el talento humano y transformamos culturas organizacionales</p>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">🎯</div>
+                        <h3>Consultoría On-Demand</h3>
+                        <p>Obtén asesoramiento asertivo enfocado en las necesidades identificadas de tu organización para contribuir con el logro de las metas de tus planes estratégicos.</p>
+                        <div class="service-features">
+                            <span>✔️ Análisis personalizado</span>
+                            <span>✔️ Soluciones específicas</span>
+                            <span>✔️ Seguimiento continuo</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">👥</div>
+                        <h3>Cualificación del Talento Humano</h3>
+                        <p>Desarrolla el potencial de tu equipo, cualificando su PENTADIMENSIONALIDAD generando una cultura de alto rendimiento.</p>
+                        <div class="service-features">
+                            <span>✔️ Formación pentadimensional</span>
+                            <span>✔️ Desarrollo de competencias</span>
+                            <span>✔️ Liderazgo transformacional</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">🏢</div>
+                        <h3>Gestión de la Cultura Organizacional</h3>
+                        <p>Fortalece la cultura organizacional de tu corporativo, mediante un modelo de Empowerment Innovador.</p>
+                        <div class="service-features">
+                            <span>✔️ Diagnóstico cultural</span>
+                            <span>✔️ Planes de transformación</span>
+                            <span>✔️ Métricas de impacto</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">📋</div>
+                        <h3>Formulación y Gestión de Proyectos</h3>
+                        <p>Te acompañamos en la planificación y ejecución de proyectos sociales, impulsando el cambio y el impacto positivo en nuestras comunidades.</p>
+                        <div class="service-features">
+                            <span>✔️ Diseño de proyectos</span>
+                            <span>✔️ Gestión integral</span>
+                            <span>✔️ Impacto social medible</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="clients-section">
+                    <h3 class="clients-title">Nuestros Clientes</h3>
+                    <div class="clients-grid">
+                        <div class="client-card">
+                            <div class="client-logo">ASODECOR</div>
+                            <p>Se implementó un programa de transformación de su cultura organizacional.</p>
+                        </div>
+                        
+                        <div class="client-card">
+                            <div class="client-logo">DOFASA</div>
+                            <p>Se implementó nuestro programa de bilingüismo. Siendo el primer colegio privado bilingüe del Alto Sind.</p>
+                        </div>
+                        
+                        <div class="client-card">
+                            <div class="client-logo">ALCALDÍA SAN BERNARDO DEL VIENTO</div>
+                            <p>Se implementó el programa de liderazgo para líderes de acción comunal y sociedad civil.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials-section" id="testimonios">
+            <div class="testimonials-waves-container">
+                <div class="testimonials-wave"></div>
+                <div class="testimonials-wave"></div>
+                <div class="testimonials-wave"></div>
+            </div>
+            
+            <div class="testimonials-elements">
+                <div class="testimonials-element">💫</div>
+                <div class="testimonials-element">⭐</div>
+                <div class="testimonials-element">🌠</div>
+                <div class="testimonials-element">✨</div>
+                <div class="testimonials-element">🎭</div>
+                <div class="testimonials-element">🌟</div>
+                <div class="testimonials-element">🔮</div>
+                <div class="testimonials-element">💖</div>
+            </div>
+
+            <div class="container">
+                <h2 class="section-title">Historias de Transformación</h2>
+                <p class="section-subtitle">Descubre lo que nuestros líderes tienen para compartir</p>
+
+                <div class="testimonials-grid">
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">👨‍💼</div>
+                            <div class="testimonial-info">
+                                <h4>JOSE FABIO</h4>
+                                <span>Psicólogo</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <p>"Antes de unirme a BIG LEADER, me encontraba en la incertidumbre sobre mi misión de vida y carecía de conocimiento sobre herramientas profesionales como la epistemología y el lenguaje. Mi experiencia con BigLeader ha sido transformadora. He mejorado mi relación conmigo mismo, elevando mi estatura social en todas las áreas de mi vida."</p>
+                        </div>
+                        <div class="testimonial-highlight">
+                            <span>✨ Claridad de contribución a la sociedad</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">👨‍🍳</div>
+                            <div class="testimonial-info">
+                                <h4>IVÁN RAMOS</h4>
+                                <span>Chef</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <p>"Aprendí a vivir plenamente, BIG LEADER cambió mi vida al dar estructura a mis pensamientos, permitiendo pensar con sabiduría y dar ideas a mis ideas. Enfrenté desafíos como comunicador asertivo y superé el miedo a hablar en público. Aprendí a escuchar, comunicar, ser comprensivo y justo, aspirando a ser un mejor líder."</p>
+                        </div>
+                        <div class="testimonial-highlight">
+                            <span>🎯 Superación del miedo a hablar en público</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">👩‍🔬</div>
+                            <div class="testimonial-info">
+                                <h4>DANIELA REALES</h4>
+                                <span>Estudiante de Ingeniería Química</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <p>"Antes de unirme a BigLeader, me sentía confundida respecto a mis intereses y capacidades, sin comprender mi naturaleza polímata y sin poder explicar mis talentos. BigLeader ha cambiado mi perspectiva, adoptando un pensamiento pentadimensional que me permite comprender mejor los eventos a mi alrededor y actuar de manera adecuada."</p>
+                        </div>
+                        <div class="testimonial-highlight">
+                            <span>🧠 Pensamiento pentadimensional desarrollado</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">👩‍💼</div>
+                            <div class="testimonial-info">
+                                <h4>YANDRI</h4>
+                                <span>Tecnóloga en Contabilidad</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <p>"Recomiendo BIG LEADER porque tiene las herramientas para ayudarte a conectar con tu verdadero ser. Muchas veces, nuestro camino se ve afectado por circunstancias de la vida que son crueles y difíciles y esa suma de traumas va apagando poco a poco la verdadera luz y brillo de nuestro ser."</p>
+                        </div>
+                        <div class="testimonial-highlight">
+                            <span>💎 Reconexión con el ser auténtico</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <div class="testimonial-avatar">👧</div>
+                            <div class="testimonial-info">
+                                <h4>CHARITY</h4>
+                                <span>Estudiante de Grado II</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <p>"BIG LEADER ha sido mi mayor bendición. Antes era insegura y temerosa, pero este proyecto transformó mi vida al 100% eliminando mis misiones e inseguridades. Aprendí a responder preguntas de manera asombrosa y enfrenté mi miedo a hablar, descubriendo el valor de mi opinión."</p>
+                        </div>
+                        <div class="testimonial-highlight">
+                            <span>🚀 Transformación 100% comprobada</span>
+                        </div>
+                    </div>
+
+                    <div class="testimonial-card highlight-card">
+                        <div class="testimonial-icon">🎉</div>
+                        <h3>Únete a la Transformación</h3>
+                        <p>"Si deseas conocer el verdadero universo que hay dentro de ti, el camino es BIG LEADER."</p>
+                        <div class="testimonial-cta">
+                            <span>- Yandri</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-section" id="contacto">
+            <div class="contact-waves-container">
+                <div class="contact-wave"></div>
+                <div class="contact-wave"></div>
+                <div class="contact-wave"></div>
+            </div>
+            
+            <div class="contact-elements">
+                <div class="contact-element">📱</div>
+                <div class="contact-element">📧</div>
+                <div class="contact-element">💬</div>
+                <div class="contact-element">🌐</div>
+                <div class="contact-element">📍</div>
+                <div class="contact-element">📞</div>
+                <div class="contact-element">✉️</div>
+                <div class="contact-element">🔗</div>
+            </div>
+
+            <div class="container">
+                <h2 class="section-title">Conectemos</h2>
+                <p class="section-subtitle">Estamos aquí para acompañarte en tu transformación</p>
+
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-card">
+                            <div class="contact-icon">👑</div>
+                            <h3>Alvaro José Amor Padilla</h3>
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>+57 313 5048484</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>alvaroamor62@hotmail.com</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Centro Internacional de Liderazgo</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contact-card">
+                            <div class="contact-icon">🌟</div>
+                            <h3>Naylve Lucía Galindo Ortega</h3>
+                            <div class="contact-details">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>+57 321 2468332</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Nallyb1237@gmail.com</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Coordinadora de Contacto</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-actions">
+                        <div class="action-card">
+                            <div class="action-icon">💙</div>
+                            <h4>Inducción Gratuita</h4>
+                            <p>Programa tu sesión introductoria sin costo</p>
+                            <div class="action-buttons">
+                                <a href="https://wa.me/573135048484" class="whatsapp-btn" target="_blank">
+                                    <i class="fab fa-whatsapp"></i>
+                                    WhatsApp
+                                </a>
+                                <a href="tel:+573135048484" class="call-btn">
+                                    <i class="fas fa-phone"></i>
+                                    Llamar
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="schedule-info">
+                            <h4>Horarios de Atención</h4>
+                            <div class="schedule-item">
+                                <span>Lunes - Viernes</span>
+                                <span>8:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="schedule-item">
+                                <span>Sábados</span>
+                                <span>9:00 AM - 2:00 PM</span>
+                            </div>
+                            <div class="schedule-note">
+                                <i class="fas fa-clock"></i>
+                                <span>Respuesta en menos de 24 horas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-cta">
+                    <div class="cta-content">
+                        <h3>¿Listo para Transformar tu Vida?</h3>
+                        <p>Únete a los cientos de líderes que ya han comenzado su viaje con BIG LEADER</p>
+                        <button class="cta-button" onclick="window.open('https://wa.me/573135048484', '_blank')">
+                            <i class="fab fa-whatsapp"></i>
+                            Comenzar Ahora por WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-section">
+        <div class="footer-waves-container">
+            <div class="footer-wave"></div>
+            <div class="footer-wave"></div>
+            <div class="footer-wave"></div>
+        </div>
+        
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>BIG LEADER</h3>
+                    <span>Centro Internacional de Liderazgo</span>
+                    <p>Transformando el techo de cristal en una ventana de posibilidades</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Navegación</h4>
+                        <a href="#inicio">Inicio</a>
+                        <a href="#modulos">Módulos</a>
+                        <a href="#sistema-educativo">Sistema de Formación</a>
+                        <a href="#nosotros">Nosotros</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Servicios</h4>
+                        <a href="#servicios">Consultoría</a>
+                        <a href="#servicios">Formación</a>
+                        <a href="#servicios">Proyectos</a>
+                        <a href="#contacto">Contacto</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <a href="#">Términos y Condiciones</a>
+                        <a href="#">Política de Privacidad</a>
+                        <a href="#">Aviso Legal</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-social">
+                    <a href="https://www.facebook.com/share/1BSs5j8MC5/" class="social-link facebook" target="_blank">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/elalara21?igsh=MXBnNHprMTRxcTlsMQ==" class="social-link instagram" target="_blank">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@alitas_blancas?_r=1&_t=ZS-91NT61a4YES" class="social-link tiktok" target="_blank">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://wa.me/573135048484" class="social-link whatsapp" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+                
+                <div class="footer-copyright">
+                    <p>&copy; 2025 BIG LEADER - Centro Internacional de Liderazgo. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="social-floating">
+        <a href="https://wa.me/573135048484" class="social-icon-floating whatsapp" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        <a href="https://www.facebook.com/share/1BSs5j8MC5/" class="social-icon-floating facebook" target="_blank">
+            <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="https://www.tiktok.com/@alitas_blancas?_r=1&_t=ZS-91NT61a4YES" class="social-icon-floating tiktok" target="_blank">
+            <i class="fab fa-tiktok"></i>
+        </a>
+        <a href="https://www.instagram.com/elalara21?igsh=MXBnNHprMTRxcTlsMQ==" class="social-icon-floating instagram" target="_blank">
+            <i class="fab fa-instagram"></i>
+        </a>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

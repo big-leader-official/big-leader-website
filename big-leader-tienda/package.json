@@ -1,0 +1,8 @@
+{
+  "name": "big-leader-tienda",
+  "version": "1.0.0",
+  "description": "Tienda online de módulos de liderazgo BIG LEADER",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
